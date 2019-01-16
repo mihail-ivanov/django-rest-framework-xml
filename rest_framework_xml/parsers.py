@@ -20,13 +20,10 @@ class XMLParser(BaseParser):
 
     media_type = 'application/xml'
 
-    def __init__(self, *args, **kwargs):
-        super(XMLParser, self).__init__(*args, **kwargs)
+    xml_list_items = ['list-item']
 
-        # Add custom list items from settings
-        self.xml_list_items = ['list-item']
-        if hasattr(settings, 'REST_FRAMEWORK_XML_LIST_ITEMS'):
-            self.xml_list_items.extend(settings.REST_FRAMEWORK_XML_LIST_ITEMS)
+    def get_xml_list_items(self):
+        return self.xml_list_items
 
     def parse(self, stream, media_type=None, parser_context=None):
         """
@@ -56,7 +53,7 @@ class XMLParser(BaseParser):
             return self._type_convert(element.text)
         else:
             # if the fist child tag is list-item means all children are list-item
-            if children[0].tag in settings.xml_list_items:
+            if children[0].tag in self.get_xml_list_items():
                 data = []
                 for child in children:
                     data.append(self._xml_convert(child))
