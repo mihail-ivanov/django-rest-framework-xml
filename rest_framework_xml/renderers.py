@@ -21,6 +21,9 @@ class XMLRenderer(BaseRenderer):
     item_tag_name = 'list-item'
     root_tag_name = 'root'
 
+    def get_item_tag_name(self, item, xml, data):
+        return self.item_tag_name
+
     def render(self, data, accepted_media_type=None, renderer_context=None):
         """
         Renders `data` into serialized XML.
@@ -43,9 +46,15 @@ class XMLRenderer(BaseRenderer):
     def _to_xml(self, xml, data):
         if isinstance(data, (list, tuple)):
             for item in data:
-                xml.startElement(self.item_tag_name, {})
+                item_tag_name = self.get_item_tag_name(item, xml, data)
+
+                if item_tag_name:
+                    xml.startElement(item_tag_name, {})
+
                 self._to_xml(xml, item)
-                xml.endElement(self.item_tag_name)
+
+                if item_tag_name:
+                    xml.endElement(item_tag_name)
 
         elif isinstance(data, dict):
             for key, value in six.iteritems(data):
